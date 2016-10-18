@@ -1,6 +1,4 @@
 # Long Short Term Memory NN using TensorFlow TFLearn
 
-### Tutorials --
-
+1. LSTM Generate City Names
   * https://www.youtube.com/watch?v=KvoZU-ItDiE
-  * http://tflearn.org/
