@@ -18,8 +18,7 @@ class CNeuralNet:
     def __init__(self, numInputs, numOutputs, numHiddenLayers, numNeuronsPerHiddenLayer):
         if numHiddenLayers > 0:
             self.vecNeuronLayers = [SNeuronLayer(numNeuronsPerHiddenLayer, numInputs)]
-            for count in range(numHiddenLayers - 1):
-                self.vecNeuronLayers.append(SNeuronLayer(numNeuronsPerHiddenLayer, numNeuronsPerHiddenLayer))
+            self.vecNeuronLayers.extend([SNeuronLayer(numNeuronsPerHiddenLayer, numNeuronsPerHiddenLayer) for count in range(numHiddenLayers - 1)])
             self.vecNeuronLayers.append(SNeuronLayer(numOutputs, numNeuronsPerHiddenLayer))
         else:
             self.vecNeuronLayers.append(SNeuronLayer(numOutputs, numInputs))
