@@ -1,0 +1,1 @@
+NNConfig = {'iNumInputs': 4, 'iNumOutputs': 2, 'iNumHidden': 1, 'iNeuronsPerHiddenLayer': 6}
