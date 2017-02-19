@@ -1,14 +1,12 @@
 """This module contains the basic structural units of the Neural Network."""
 
-from numpy import random, copy
-from Utils import sigmoid
+from Utils import sigmoid, random_clamped
 
 class SNeuron:
     """This class is a Single Neuron."""
     def __init__(self, numInputs):
         self.num_inputs = numInputs
-        random.seed(1)
-        self.synaptic_weights = 2 * random.random((numInputs + 1)) - 1
+        self.synaptic_weights = random_clamped(numInputs + 1)
 
 
 class SNeuronLayer:
@@ -50,16 +48,15 @@ class CNeuralNet:
         """This method returns the number of weights."""
         return len(self.get_weights())
 
-    def update2(self, inputs):
+    def update(self, inputs):
         """This method calculates the output vector given an input vector."""
         outputs = []
         if len(inputs) != self.num_inputs:
             return outputs
         for i in range(self.num_hidden_layers + 1):
             if i > 0:
-                inputs = outputs[:]
-            outputs[:] = []
+                inputs = outputs
             inputs.append(-1)
-            for neuron in self.vec_neuron_layers[i].vec_neurons:
-                outputs.append(sigmoid(sum([j*k for j, k in zip(neuron.synaptic_weights, inputs)]), 1))
+            outputs = [sigmoid(sum([j * k for j, k in zip(neuron.synaptic_weights, inputs)]), 1)
+                       for neuron in self.vec_neuron_layers[i].vec_neurons]
         return outputs
