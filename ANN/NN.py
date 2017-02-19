@@ -1,36 +1,65 @@
-from numpy import random
+"""This module contains the basic structural units of the Neural Network."""
 
+from numpy import random, copy
+from Utils import sigmoid
 
 class SNeuron:
+    """This class is a Single Neuron."""
     def __init__(self, numInputs):
-        self.numInputs = numInputs
+        self.num_inputs = numInputs
         random.seed(1)
-        self.synaptic_weights = 2 * random.random((numInputs + 1, 1)) - 1
+        self.synaptic_weights = 2 * random.random((numInputs + 1)) - 1
 
 
 class SNeuronLayer:
+    """This class is a Single Neuron Layer."""
     def __init__(self, numNeurons, numInputsPerNeuron):
-        self.numNeurons = numNeurons
-        self.vecNeurons = [SNeuron(numInputsPerNeuron) for count in range(numNeurons)]
+        self.num_neurons = numNeurons
+        self.vec_neurons = [SNeuron(numInputsPerNeuron) for count in range(numNeurons)]
 
 
 class CNeuralNet:
+    """This class is the Complete Neural Network."""
     def __init__(self, numInputs, numOutputs, numHiddenLayers, numNeuronsPerHiddenLayer):
+        self.num_inputs = numInputs
+        self.num_hidden_layers = numHiddenLayers
         if numHiddenLayers > 0:
-            self.vecNeuronLayers = [SNeuronLayer(numNeuronsPerHiddenLayer, numInputs)]
-            self.vecNeuronLayers.extend([SNeuronLayer(numNeuronsPerHiddenLayer, numNeuronsPerHiddenLayer) for count in range(numHiddenLayers - 1)])
-            self.vecNeuronLayers.append(SNeuronLayer(numOutputs, numNeuronsPerHiddenLayer))
+            self.vec_neuron_layers = [SNeuronLayer(numNeuronsPerHiddenLayer, numInputs)]
+            self.vec_neuron_layers.extend([SNeuronLayer(numNeuronsPerHiddenLayer,
+                                                        numNeuronsPerHiddenLayer)
+                                           for count in range(numHiddenLayers - 1)])
+            self.vec_neuron_layers.append(SNeuronLayer(numOutputs, numNeuronsPerHiddenLayer))
         else:
-            self.vecNeuronLayers.append(SNeuronLayer(numOutputs, numInputs))
-    
-    def getWeights(self):
-        return [weight for layer in self.vecNeuronLayers for neuron in layer.vecNeurons for weight in neuron.synaptic_weights]
+            self.vec_neuron_layers = [SNeuronLayer(numOutputs, numInputs)]
 
-    def putWeights(self, weights):
-        numWeight = 0
-        for i in range(len(self.vecNeuronLayers)):
-            for j in range(len(self.vecNeuronLayers[i].vecNeurons)):
-                for k in range(len(self.vecNeuronLayers[i].vecNeurons[j].synaptic_weights)):
-                    self.vecNeuronLayers[i].vecNeurons[j].synaptic_weights[k] = weights[numWeight]
-                    numWeight += 1
-        #[[[weights for weight in neuron.synaptic_weights] for neuron in layer.vecNeurons] for layer in self.vecNeuronLayers]
+    def get_weights(self):
+        """This method returns all the weights as a single vector."""
+        return [weight for layer in self.vec_neuron_layers for neuron in layer.vec_neurons
+                for weight in neuron.synaptic_weights]
+
+    def put_weights(self, weights):
+        """This method assigns all the weights from a single vector."""
+        num_weight = 0
+        for i in range(len(self.vec_neuron_layers)):
+            for j in range(len(self.vec_neuron_layers[i].vec_neurons)):
+                for k in range(len(self.vec_neuron_layers[i].vec_neurons[j].synaptic_weights)):
+                    self.vec_neuron_layers[i].vec_neurons[j].synaptic_weights[k] = weights[num_weight]
+                    num_weight += 1
+
+    def get_number_of_weights(self):
+        """This method returns the number of weights."""
+        return len(self.get_weights())
+
+    def update2(self, inputs):
+        """This method calculates the output vector given an input vector."""
+        outputs = []
+        if len(inputs) != self.num_inputs:
+            return outputs
+        for i in range(self.num_hidden_layers + 1):
+            if i > 0:
+                inputs = outputs[:]
+            outputs[:] = []
+            inputs.append(-1)
+            for neuron in self.vec_neuron_layers[i].vec_neurons:
+                outputs.append(sigmoid(sum([j*k for j, k in zip(neuron.synaptic_weights, inputs)]), 1))
+        return outputs
